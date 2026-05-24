@@ -1,0 +1,10 @@
+{
+  "sensors": [
+    {"type": "tca_sidestick", "device": "/dev/input/js0",  "topic": "sensor/tca/stick"},
+    {"type": "arduino_serial","port":   "/dev/ttyUSB0",    "baud": 115200}
+  ],
+  "actuators": [
+    {"type": "servo_serial", "target": "actuator/steering", "port": "/dev/ttyUSB0"},
+    {"type": "relay_serial", "target": "actuator/relay",    "port": "/dev/ttyUSB1"}
+  ]
+}
