@@ -23,6 +23,7 @@ set(SOURCES
     src/VehicleIOGateway.cpp
     # drivers
     src/drivers/TcaSidestickDriver.cpp
+    src/drivers/ArduinoSerialDriver.cpp
 )
 
 add_executable(${PROJECT_NAME} main.cpp ${SOURCES})
@@ -44,8 +45,13 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     ${ZMQ_CFLAGS_OTHER}
 )
 
-# ── 개발 도구: ZMQ 구독 테스트 바이너리 ─────────────────────────
+# ── 개발 도구 ────────────────────────────────────────────────────
 add_executable(sub_test tools/sub_test.cpp)
 target_include_directories(sub_test PRIVATE ${ZMQ_INCLUDE_DIRS} ${CPPZMQ_INCLUDE_DIR})
 target_link_libraries(sub_test PRIVATE ${ZMQ_LIBRARIES})
 target_compile_options(sub_test PRIVATE -Wall -Wextra ${ZMQ_CFLAGS_OTHER})
+
+add_executable(demo_feature tools/demo_feature.cpp)
+target_include_directories(demo_feature PRIVATE ${ZMQ_INCLUDE_DIRS} ${CPPZMQ_INCLUDE_DIR})
+target_link_libraries(demo_feature PRIVATE ${ZMQ_LIBRARIES} nlohmann_json::nlohmann_json)
+target_compile_options(demo_feature PRIVATE -Wall -Wextra ${ZMQ_CFLAGS_OTHER})

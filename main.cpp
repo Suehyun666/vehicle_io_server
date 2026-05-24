@@ -1,6 +1,7 @@
 #include "DeviceManager.hpp"
 #include "VehicleIOGateway.hpp"
 #include "drivers/TcaSidestickDriver.hpp"
+#include "drivers/ArduinoSerialDriver.hpp"
 #include <iostream>
 #include <csignal>
 #include <atomic>
@@ -27,13 +28,12 @@ int main() {
     dm.registerSensorDriver(
         std::make_shared<TcaSidestickDriver>("/dev/input/js0"));
 
-    // TODO: 추가 드라이버 (구현 후 주석 해제)
-    // dm.registerSensorDriver(
-    //     std::make_shared<ArduinoSerialDriver>("/dev/ttyUSB0", 115200));
-    // dm.registerActuatorDriver("actuator/steering",
-    //     std::make_shared<ServoDriver>("/dev/ttyUSB0", 115200));
-    // dm.registerActuatorDriver("actuator/relay",
-    //     std::make_shared<RelayDriver>("/dev/ttyUSB1", 115200));
+    // ── Arduino (HC-SR04 센서 + 서보/릴레이 액추에이터) ─────────────
+    // 같은 인스턴스를 센서와 액추에이터 양쪽에 등록
+    auto arduino = std::make_shared<ArduinoSerialDriver>("/dev/ttyACM0", 115200);
+    dm.registerSensorDriver(arduino);
+    dm.registerActuatorDriver("actuator/servo1", arduino);
+    dm.registerActuatorDriver("actuator/relay",  arduino);
 
     // ── 2. 게이트웨이 기동 ────────────────────────────────────────
     VehicleIOGateway gateway(dm);
