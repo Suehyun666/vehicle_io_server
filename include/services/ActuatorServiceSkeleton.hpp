@@ -20,8 +20,8 @@ public:
 
 protected:
     // 파생 클래스가 구현 — 드라이버 호출 등 HAL 로직
-    virtual ActuatorResult onSetServo(double angle) = 0;
-    virtual ActuatorResult onSetRelay(bool   on)    = 0;
+    virtual ActuatorResult onSetSteering(float normalized) = 0;  // [-1.0 좌 ~ +1.0 우]
+    virtual ActuatorResult onSetEmergencyBrake(bool on)    = 0;
 
 private:
     zmq::socket_t     responder_;

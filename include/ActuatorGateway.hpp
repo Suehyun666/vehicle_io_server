@@ -14,8 +14,8 @@ public:
                     const std::string& endpoint);
 
 protected:
-    ActuatorResult onSetServo(double angle) override;
-    ActuatorResult onSetRelay(bool   on)    override;
+    ActuatorResult onSetSteering(float normalized) override;
+    ActuatorResult onSetEmergencyBrake(bool on)    override;
 
 private:
     DeviceManager& dm_;

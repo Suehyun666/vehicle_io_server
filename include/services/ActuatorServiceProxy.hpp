@@ -14,8 +14,8 @@ public:
                                   const std::string& endpoint,
                                   const std::string& feature_id = "unknown");
 
-    ActuatorResult setServo(double angle);   // angle: [0, 180] deg
-    ActuatorResult setRelay(bool on);
+    ActuatorResult setSteering(float normalized);  // [-1.0 좌 ~ +1.0 우]
+    ActuatorResult setEmergencyBrake(bool on);
 
 private:
     ActuatorResult sendCommand(const std::string& target, double value);

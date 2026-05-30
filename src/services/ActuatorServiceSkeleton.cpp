@@ -46,13 +46,13 @@ void ActuatorServiceSkeleton::listenLoop() {
             auto tgt = j.at("target").get<std::string>();
             auto val = j.at("value").get<double>();
 
-            // "actuator/servo1" → "servo1"
+            // "vehicle/steering" → "steering"
             const auto pos = tgt.rfind('/');
             const auto cmd = (pos != std::string::npos) ? tgt.substr(pos + 1) : tgt;
 
-            if      (cmd == "servo1") result = onSetServo(val);
-            else if (cmd == "relay")  result = onSetRelay(val != 0.0);
-            else                      result = {false, "Unknown target: " + tgt};
+            if      (cmd == "steering")       result = onSetSteering(static_cast<float>(val));
+            else if (cmd == "emergencyBrake") result = onSetEmergencyBrake(val != 0.0);
+            else                              result = {false, "Unknown target: " + tgt};
 
         } catch (const json::exception& e) {
             result = {false, std::string("JSON error: ") + e.what()};

@@ -34,32 +34,28 @@ int main() {
     bool  relay_on   = false;
     float last_twist = 999.0f;
 
-    // ── TCA twist → 서보 각도 ─────────────────────────────────────
+    // ── TCA twist → 조향 ─────────────────────────────────────────
     sensor.subscribeStick([&](const StickData& d) {
         if (std::fabs(d.twist - last_twist) < TWIST_DEADZONE) return;
         last_twist = d.twist;
 
-        int angle = static_cast<int>((d.twist + 1.0f) / 2.0f * 180.0f);
-        angle = std::clamp(angle, 0, 180);
-
-        actuator.setServo(static_cast<double>(angle));
-        std::cout << "[demo_feature] twist=" << d.twist
-                  << " → servo=" << angle << "deg\n";
+        actuator.setSteering(d.twist);  // normalized [-1,1], 변환은 Gateway에서
+        std::cout << "[demo_feature] twist=" << d.twist << " → steering\n";
     });
 
-    // ── HC-SR04 dist → 릴레이 (히스테리시스) ─────────────────────
+    // ── HC-SR04 dist → 긴급 제동 (히스테리시스) ──────────────────
     sensor.subscribeDist([&](const DistData& d) {
         bool should_on;
         if      (d.distance_cm > 0.0f && d.distance_cm < RELAY_ON_CM)   should_on = true;
         else if (d.distance_cm == 0.0f || d.distance_cm > RELAY_OFF_CM) should_on = false;
-        else    return;  // 히스테리시스 구간 → 유지
+        else    return;
 
         if (should_on == relay_on) return;
         relay_on = should_on;
 
-        actuator.setRelay(relay_on);
+        actuator.setEmergencyBrake(relay_on);
         std::cout << "[demo_feature] dist=" << d.distance_cm
-                  << "cm → relay " << (relay_on ? "ON" : "OFF") << "\n";
+                  << "cm → emergencyBrake " << (relay_on ? "ON" : "OFF") << "\n";
     });
 
     std::cout << "[demo_feature] Running\n";
@@ -69,7 +65,7 @@ int main() {
     }
 
     // 종료 시 안전 상태
-    actuator.setRelay(false);
-    actuator.setServo(90.0);
+    actuator.setEmergencyBrake(false);
+    actuator.setSteering(0.0f);
     std::cout << "[demo_feature] Stopped. Safe state applied.\n";
 }

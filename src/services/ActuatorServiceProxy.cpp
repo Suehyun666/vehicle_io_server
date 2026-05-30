@@ -13,12 +13,12 @@ ActuatorServiceProxy::ActuatorServiceProxy(zmq::context_t& ctx,
     requester_.connect(endpoint);
 }
 
-ActuatorResult ActuatorServiceProxy::setServo(double angle) {
-    return sendCommand("actuator/servo1", angle);
+ActuatorResult ActuatorServiceProxy::setSteering(float normalized) {
+    return sendCommand("vehicle/steering", static_cast<double>(normalized));
 }
 
-ActuatorResult ActuatorServiceProxy::setRelay(bool on) {
-    return sendCommand("actuator/relay", on ? 1.0 : 0.0);
+ActuatorResult ActuatorServiceProxy::setEmergencyBrake(bool on) {
+    return sendCommand("vehicle/emergencyBrake", on ? 1.0 : 0.0);
 }
 
 ActuatorResult ActuatorServiceProxy::sendCommand(const std::string& target,
