@@ -1,5 +1,6 @@
 #pragma once
 #include "IDriver.hpp"
+#include "sdv_topics.hpp"
 #include <array>
 #include <string>
 #include <linux/joystick.h>
@@ -30,7 +31,7 @@
 // ────────────────────────────────────────────────────────────────
 class TcaSidestickDriver : public ISensorDriver {
 public:
-    static constexpr const char* kTopic      = "sensor/tca/stick";
+    static constexpr const char* kTopic      = sdv::topics::kStick;
     static constexpr int         kMaxAxes    = 8;
     static constexpr int         kMaxButtons = 32;
 

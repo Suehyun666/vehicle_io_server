@@ -29,7 +29,7 @@ public:
                                 std::shared_ptr<IActuatorDriver> driver);
 
     // ── 조회 ──────────────────────────────────────────────────────
-    std::vector<std::shared_ptr<ISensorDriver>>& getSensorDrivers();
+    const std::vector<std::shared_ptr<ISensorDriver>>& getSensorDrivers() const;
     std::shared_ptr<IActuatorDriver> findActuatorDriver(const std::string& target);
 
 private:

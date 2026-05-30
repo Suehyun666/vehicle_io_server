@@ -1,5 +1,6 @@
 #pragma once
 #include "IDriver.hpp"
+#include "sdv_topics.hpp"
 #include <queue>
 #include <string>
 
@@ -15,7 +16,7 @@
 // ────────────────────────────────────────────────────────────────
 class ArduinoSerialDriver : public ISensorDriver, public IActuatorDriver {
 public:
-    static constexpr const char* kTopicDist = "sensor/arduino/dist";
+    static constexpr const char* kTopicDist = sdv::topics::kDist;
 
     explicit ArduinoSerialDriver(const std::string& port  = "/dev/ttyACM0",
                                  int                baud  = 115200);

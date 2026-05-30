@@ -30,7 +30,7 @@ void DeviceManager::registerActuatorDriver(const std::string& target,
     actuator_drivers_[target] = std::move(driver);
 }
 
-std::vector<std::shared_ptr<ISensorDriver>>& DeviceManager::getSensorDrivers() {
+const std::vector<std::shared_ptr<ISensorDriver>>& DeviceManager::getSensorDrivers() const {
     return sensor_drivers_;
 }
 
