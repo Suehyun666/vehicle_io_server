@@ -1,50 +1,40 @@
 #include "DeviceManager.hpp"
-#include "VehicleIOGateway.hpp"
+#include "hal/HalNode.hpp"
 #include "drivers/TcaSidestickDriver.hpp"
 #include "drivers/ArduinoSerialDriver.hpp"
-#include <iostream>
-#include <csignal>
+#include <zmq.hpp>
 #include <atomic>
+#include <csignal>
+#include <iostream>
+#include <thread>
 
-static std::atomic<bool> g_shutdown{false};
-
-static void signalHandler(int) {
-    g_shutdown = true;
-    // TODO: gateway.stop() 호출 경로 추가
-}
+static std::atomic<bool> g_running{true};
+static void sigHandler(int) { g_running = false; }
 
 int main() {
-    std::signal(SIGINT,  signalHandler);
-    std::signal(SIGTERM, signalHandler);
+    std::signal(SIGINT,  sigHandler);
+    std::signal(SIGTERM, sigHandler);
 
-    // ── 1. 드라이버 로드 ──────────────────────────────────────────
     DeviceManager dm;
+    dm.registerSensorDriver(std::make_shared<TcaSidestickDriver>("/dev/input/js0"));
 
-    // 설정 파일 기반 로드 (TODO: 드라이버 factory 구현 후 활성화)
-    // dm.loadFromConfig("/etc/sdv/hw_config.json");
-
-    // ── TCA Sidestick (USB HID → /dev/input/js0) ────────────────
-    // 연결 안 됐으면 connect() 실패 로그 뜨고 등록 안 됨 (서버는 계속 실행)
-    dm.registerSensorDriver(
-        std::make_shared<TcaSidestickDriver>("/dev/input/js0"));
-
-    // ── Arduino (HC-SR04 센서 + 서보/릴레이 액추에이터) ─────────────
-    // 같은 인스턴스를 센서와 액추에이터 양쪽에 등록
     auto arduino = std::make_shared<ArduinoSerialDriver>("/dev/ttyACM0", 115200);
     dm.registerSensorDriver(arduino);
     dm.registerActuatorDriver("actuator/servo1", arduino);
     dm.registerActuatorDriver("actuator/relay",  arduino);
 
-    // ── 2. 게이트웨이 기동 ────────────────────────────────────────
-    VehicleIOGateway gateway(dm);
+    zmq::context_t ctx{1};
+    HalNode hal(dm, ctx);
 
-    if (!gateway.setup()) {
-        std::cerr << "[main] Setup failed. Exiting.\n";
+    if (!hal.start()) {
+        std::cerr << "[main] HAL start failed\n";
         return EXIT_FAILURE;
     }
 
-    std::cout << "[main] VehicleIoServer running. Press Ctrl+C to exit.\n";
-    gateway.run();  // 블로킹 — actuator listenLoop 이 반환될 때까지 대기
+    std::cout << "[main] Running. Ctrl+C to stop.\n";
+    while (g_running)
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
+    hal.stop();
     return EXIT_SUCCESS;
 }
